@@ -1,326 +1,275 @@
 @startuml Class UML
 
-    namespace CoreAPI #FAF1A6 {
+    set namespaceSeparator \\
 
-        namespace APP\Actions\Country #DDDDDD {
-
-            class GetAction {
-                - countryRepository
-                - jsonResponseFactory
-                ==
-                + {method} __construct (countryRepository, jsonResponseFactory)
-                ==
-                + {method} __invoke (request, iso3)
-            }
-
-            class ListAction {
-                - countryRepository
-                - jsonResponseFactory
-                ==
-                + {method} __construct (jsonResponseFactory, countryRepository)
-                ==
-                + {method} __invoke (request)
-                + {method} search (name, params, criteria, and)
-            }
-
-        }
-
-        namespace APP\Actions\Location #DDDDDD {
-
-            class DeleteAction {
-                - jsonResponseFactory
-                - locationRepository
-                - authorizer
-                ==
-                + {method} __construct (jsonResponseFactory, locationRepository
-                                         authorizer)
-                ==
-                + {method} __invoke (request, id)
-                - {method} delteHard (id)
-                - {method} delteSoft (id)
-            }
-
-            class GetAction {
-                - jsonResponseFactory
-                - locationRepository
-                - authorizer
-                ==
-                + {method} __construct (jsonResponseFactory, locationRepository
-                                         authorizer)
-                ==
-                + {method} __invoke (request, id)
-            }
-
-            class ListAction {
-                - countryRepository
-                - locationRepository
-                - authorizer
-                - jsonResponseFactory
-                ==
-                + {method} __construct (jsonResponseFactory, locationRepository,
-                                        authorizer, countryRepository)
-                ==
-                + {method} __invoke (request)
-                # {method} getQuery (request)
-                + {method} search (name, params, criteria, and)
-            }
-
-            class PatchAction {
-                - countryRepository
-                - locationRepository
-                - locationValidator
-                - authorizer
-                - jsonResponseFactory
-                ==
-                + {method} __construct (locationRepository, authorizer,
-                                        locationValidator, countryRepository,
-                                        jsonResponseFactory)
-                ==
-                + {method} __invoke (request, id)
-            }
-
-            class PostAction {
-                - countryRepository
-                - locationRepository
-                - locationValidator
-                - authorizer
-                - jsonResponseFactory
-                ==
-                + {method} __construct (jsonResponseFactory, locationValidator,
-                                        locationRepository, authorizer,
-                                         countryRepository,
-                                        )
-                ==
-                + {method} __invoke (request, id)
-            }
-        }
-
-        namespace APP\Data\Types #DDDDDD {
-
-            class Point {
-                - latitude
-                - longitude
-                ==
-                + {method} __construct (latitude, longitude)
-                ==
-                + {method} fromArray (data)
-                + {method} getLongitude ()
-                + {method} getLatitude ()
-                + {method} toArray ()
-            }
-
-        }
-
-        namespace APP\Data\Validator #DDDDDD {
-
-            class LocationValidator {
-                + {method} postCheck (data)
-                + {method} patchCheck (data)
-            }
-
-        }
-
-        namespace APP\Database\Entities #DDDDDD {
-
-            EntityInterface <|-- Location
-            EntityInterface <|-- Country
-
-            class Location {
-                - zip
-                - createdAt
-                - country
-                - number
-                - deletedAt
-                - metadat
-                - city
-                - street
-                - name
-                - state
-                - id
-                - point
-                - updatedAt
-                ==
-                + {method} __construct ()
-                ==
-                + {method} setMetadata (metadata)
-                + {method} getcity ()
-                + {method} getUpdatedAt ()
-                + {method} setPoint ()
-                + {method} getId ()
-                + {method} getCountry ()
-                + {method} loadMetadata (metadata)
-                + {method} getState ()
-                + {method} getPoint ()
-                + {method} getNumber ()
-                + {method} getStreet ()
-                + {method} setCity (city)
-                + {method} getMetadata ()
-                + {method} getDeletedAt ()
-                + {method} setZipcode (zipCode)
-                + {method} setState (state)
-                + {method} setStreet (street)
-                + {method} getCreatedAt ()
-                + {method} setName (name)
-                + {method} getZipcode ()
-                + {method} setNumber (number)
-                + {method} setCountry (country)
-                + {method} toArray ()
-                + {method} getName ()
-            }
-
-            class Country {
-                - name
-                - location
-                - iso3
-                ==
-                + {method} __construct ()
-                ==
-                + {method} getIso3 ()
-                + {method} setIso3 (iso3)
-                + {method} getLocatinos ()
-                + {method} setName ()
-                + {method} loadMetadata (data)
-                + {method} toArray ()
-                + {method} getName ()
-            }
-
-        }
-
-        namespace APP\Database\Repositories #DDDDDD {
-            RepositoryInterface <|-- LocationRepository
-            RepositoryInterface <|-- CountryRepository
-
-            interface RepositoryInterface {
-                + {method} getEntityClass ()
-                + {method} getTableName ()
-            }
-
-            class LocationRepository {
-                - entityManager
-                --
-                + TABLE_NAME
-                + ENTITY
-                ==
-                + {method} __construct (entityManager)
-                ==
-                + {method} getList (criteria, asArrays)
-                + {method} isNameUnique (name)
-                + {method} delete (location, hard)
-                + {method} save (location)
-                + {method} getEntityClassFQN ()
-                + {method} getById (id, includeDeleted)
-                # {method} markEntityAsUpdated (location)
-                + {method} idExists (id, includeDeleted)
-                # {method} persist (location)
-                + {method} getTableName ()
-                + {method} markEntityAsDeleted (location)
-                + {method} getEntityManager ()
-            }
-
-            class CountryRepository {
-                - entityManager
-                --
-                - TABLE_NAME
-                - ENTITY
-                ==
-                + {method} __construct (entityManager)
-                ==
-                + {method} getList (criteria, asArrays)
-                + {method} getByIso3 (iso3)
-                + {method} getEntityClassFQN ()
-                + {method} getByName (name)
-                + {method} getTableName ()
-                + {method} getEntityManager ()
-            }
-
-        }
-
-        namespace APP\Database\Trais\Migrations #DDDDDD {
-
-            class IdColumnTrait {
-                + {method} makeIdColumn (name, table,
-                                        primary)
-            }
-
-            class ShortTextColumnTrait {
-                + {method} makeShortTextColumn (name, table,
-                                                uniqueIndexName)
-            }
-
-            class TimestampColumnsTrait {
-                + {method} addCreatedAt (table)
-                + {method} addUpdatedAt (table)
-                + {method} addDeletedAt (table)
-            }
-
-        }
-
-        namespace APP\Database\Trais\Repository #DDDDDD {
-
-            class TimestampPropertyTrait {
-                + {method} getUpdatedProperty ()
-                + {method} getDeletedProperty ()
-            }
-
-        }
-
-        namespace APP\Database\Types #DDDDDD {
-
-            class PointType {
-                +  POINT
-                + {method} getName ()
-                + {method} getSQLDeclaration (column, platform)
-                + {method} convertToPHPValue (value, platform)
-                + {method} convertToDatabaseValue (value, platform)
-                + {method} canRequireSQLConversion ()
-                + {method} convertToPHPValueSQL (sqlExpr, platform)
-                + {method} convertToDatabaseValueSQL (sqlExpr, platform)
-            }
-
-        }
-
-        namespace APP\Database #DDDDDD {
-
-            interface EntityInterface {
-                + {method} loadMetadata (metadata)
-            }
-
-            interface RepositoryInterface {
-                + {method} getEntityClassFQN ()
-                + {method} getTableName ()
-            }
-
-        }
-
-        namespace APP\Exceptions #DDDDDD {
-
-            class DefinitionException {
-                + {method} getEntityClassFQN ()
-                + {method} getTableName ()
-            }
-
-            class DeleteException {
-                + {method} getEntityClassFQN ()
-                + {method} getTableName ()
-            }
-
-            class EntitynotFoundException {
-                + {method} getEntityClassFQN ()
-                + {method} getTableName ()
-            }
-
-            class IncompatibleTraitException {
-                + {method} getEntityClassFQN ()
-                + {method} getTableName ()
-            }
-
-            class SaveException {
-                + {method} getEntityClassFQN ()
-                + {method} getTableName ()
-            }
-
-        }
-
+    "App\\Actions\\Country\\GetAction" --o "App\\Database\\Repositories\\CountryRepository"
+    class "App\\Actions\\Country\\GetAction" {
+        - countryRepository
+        - jsonResponseFactory
+        ==
+        + {method} __construct (countryRepository, jsonResponseFactory)
+        ==
+        + {method} __invoke (request, iso3)
     }
+
+    "App\\Actions\\Country\\ListAction" --o "App\\Database\\Repositories\\CountryRepository"
+    class "App\\Actions\\Country\\ListAction" {
+        - countryRepository
+        - jsonResponseFactory
+        ==
+        + {method} __construct (jsonResponseFactory, countryRepository)
+        ==
+        + {method} __invoke (request)
+        + {method} search (name, params, criteria, and)
+    }
+
+    "App\\Actions\\Location\\DeleteAction" --o "App\\Database\\Repositories\\LocationRepository"
+    class "App\\Actions\\Location\\DeleteAction" {
+        - jsonResponseFactory
+        - locationRepository
+        - authorizer
+        ==
+        + {method} __construct (jsonResponseFactory, locationRepository
+                                    authorizer)
+        ==
+        + {method} __invoke (request, id)
+        - {method} delteHard (id)
+        - {method} delteSoft (id)
+    }
+
+    "App\\Actions\\Location\\GetAction" --o "App\\Database\\Repositories\\LocationRepository"
+    class "App\\Actions\\Location\\GetAction" {
+        - jsonResponseFactory
+        - locationRepository
+        - authorizer
+        ==
+        + {method} __construct (jsonResponseFactory, locationRepository
+                                    authorizer)
+        ==
+        + {method} __invoke (request, id)
+    }
+
+    "App\\Actions\\Location\\ListAction" --o "App\\Database\\Repositories\\LocationRepository"
+    "App\\Actions\\Location\\ListAction" --o "App\\Database\\Repositories\\CountryRepository"
+    class "App\\Actions\\Location\\ListAction" {
+        - countryRepository
+        - locationRepository
+        - authorizer
+        - jsonResponseFactory
+        ==
+        + {method} __construct (jsonResponseFactory, locationRepository,
+                                authorizer, countryRepository)
+        ==
+        + {method} __invoke (request)
+        # {method} getQuery (request)
+        + {method} search (name, params, criteria, and)
+    }
+
+    "App\\Actions\\Location\\PatchAction" --o "App\\Database\\Repositories\\LocationRepository"
+    "App\\Actions\\Location\\PatchAction" --o "App\\Database\\Repositories\\CountryRepository"
+    "App\\Actions\\Location\\PatchAction" --o "App\\Data\\Validator\\LocationValidator"
+    class "App\\Actions\\Location\\PatchAction" {
+        - countryRepository
+        - locationRepository
+        - locationValidator
+        - authorizer
+        - jsonResponseFactory
+        ==
+        + {method} __construct (locationRepository, authorizer,
+                                locationValidator, countryRepository,
+                                jsonResponseFactory)
+        ==
+        + {method} __invoke (request, id)
+    }
+
+    "App\\Actions\\Location\\PostAction" --o "App\\Database\\Repositories\\LocationRepository"
+    "App\\Actions\\Location\\PostAction" --o "App\\Database\\Repositories\\CountryRepository"
+    "App\\Actions\\Location\\PostAction" --o "App\\Data\\Validator\\LocationValidator"
+    class "App\\Actions\\Location\\PostAction" {
+        - countryRepository
+        - locationRepository
+        - locationValidator
+        - authorizer
+        - jsonResponseFactory
+        ==
+        + {method} __construct (jsonResponseFactory, locationValidator,
+                                locationRepository, authorizer,
+                                    countryRepository,
+                                )
+        ==
+        + {method} __invoke (request, id)
+    }
+
+    "App\\Data\\Types\\Point" --* "App\\Database\\Entities\\Location"
+    class "App\\Data\\Types\\Point" {
+        - latitude
+        - longitude
+        ==
+        + {method} __construct (latitude, longitude)
+        ==
+        + {method} fromArray (data)
+        + {method} getLongitude ()
+        + {method} getLatitude ()
+        + {method} toArray ()
+    }
+
+    class "App\\Data\\Validator\\LocationValidator" {
+        + {method} postCheck (data)
+        + {method} patchCheck (data)
+    }
+
+    "App\\Database\\Entities\\Location" --|> "App\\Database\\EntityInterface"
+    "App\\Database\\Entities\\Location" --o "App\\Database\\Repositories\\LocationRepository"
+    class "App\\Database\\Entities\\Location" {
+        - zip
+        - createdAt
+        - country
+        - number
+        - deletedAt
+        - metadat
+        - city
+        - street
+        - name
+        - state
+        - id
+        - point
+        - updatedAt
+        ==
+        + {method} __construct ()
+        ==
+        + {method} setMetadata (metadata)
+        + {method} getcity ()
+        + {method} getUpdatedAt ()
+        + {method} setPoint ()
+        + {method} getId ()
+        + {method} getCountry ()
+        + {method} loadMetadata (metadata)
+        + {method} getState ()
+        + {method} getPoint ()
+        + {method} getNumber ()
+        + {method} getStreet ()
+        + {method} setCity (city)
+        + {method} getMetadata ()
+        + {method} getDeletedAt ()
+        + {method} setZipcode (zipCode)
+        + {method} setState (state)
+        + {method} setStreet (street)
+        + {method} getCreatedAt ()
+        + {method} setName (name)
+        + {method} getZipcode ()
+        + {method} setNumber (number)
+        + {method} setCountry (country)
+        + {method} toArray ()
+        + {method} getName ()
+    }
+    
+    "App\\Database\\Entities\\Country" --|> "App\\Database\\EntityInterface"
+    "App\\Database\\Entities\\Country" --o "App\\Database\\Repositories\\CountryRepository"
+    class "App\\Database\\Entities\\Country" {
+        - name
+        - location
+        - iso3
+        ==
+        + {method} __construct ()
+        ==
+        + {method} getIso3 ()
+        + {method} setIso3 (iso3)
+        + {method} getLocatinos ()
+        + {method} setName ()
+        + {method} loadMetadata (data)
+        + {method} toArray ()
+        + {method} getName ()
+    }
+
+    "App\\Database\\Repositories\\LocationRepository" --|> "App\\Database\\RepositoryInterface"
+    class "App\\Database\\Repositories\\LocationRepository" {
+        - entityManager
+        --
+        + TABLE_NAME
+        + ENTITY
+        ==
+        + {method} __construct (entityManager)
+        ==
+        + {method} getList (criteria, asArrays)
+        + {method} isNameUnique (name)
+        + {method} delete (location, hard)
+        + {method} save (location)
+        + {method} getEntityClassFQN ()
+        + {method} getById (id, includeDeleted)
+        # {method} markEntityAsUpdated (location)
+        + {method} idExists (id, includeDeleted)
+        # {method} persist (location)
+        + {method} getTableName ()
+        + {method} markEntityAsDeleted (location)
+        + {method} getEntityManager ()
+    }
+
+    "App\\Database\\Repositories\\CountryRepository" --|> "App\\Database\\RepositoryInterface"
+    class "App\\Database\\Repositories\\CountryRepository" {
+        - entityManager
+        --
+        - TABLE_NAME
+        - ENTITY
+        ==
+        + {method} __construct (entityManager)
+        ==
+        + {method} getList (criteria, asArrays)
+        + {method} getByIso3 (iso3)
+        + {method} getEntityClassFQN ()
+        + {method} getByName (name)
+        + {method} getTableName ()
+        + {method} getEntityManager ()
+    }
+
+    class "App\\Database\\Traits\\Migrations\\IdColumnTrait" {
+        + {method} makeIdColumn (name, table, primary)
+    }
+
+    class "App\\Database\\Traits\\Migrations\\ShortTextColumnTrait" {
+        + {method} makeShortTextColumn (name, table, uniqueIndexName)
+    }
+
+    class "App\\Database\\Traits\\Migrations\\TimestampColumnsTrait" {
+        + {method} addCreatedAt (table)
+        + {method} addUpdatedAt (table)
+        + {method} addDeletedAt (table)
+    }
+
+    "App\\Database\\Traits\\Repository\\TimestampPropertyTrait" --* "App\\Database\\Repositories\\LocationRepository"
+    "App\\Database\\Traits\\Repository\\TimestampPropertyTrait" --* "App\\Database\\Repositories\\CountryRepository"
+    class "App\\Database\\Traits\\Repository\\TimestampPropertyTrait" {
+        + {method} getUpdatedProperty ()
+        + {method} getDeletedProperty ()
+    }
+
+    class "App\\Database\\Types\\PointType" {
+        +  POINT
+        + {method} getName ()
+        + {method} getSQLDeclaration (column, platform)
+        + {method} convertToPHPValue (value, platform)
+        + {method} convertToDatabaseValue (value, platform)
+        + {method} canRequireSQLConversion ()
+        + {method} convertToPHPValueSQL (sqlExpr, platform)
+        + {method} convertToDatabaseValueSQL (sqlExpr, platform)
+    }
+
+    interface "App\\Database\\EntityInterface" {
+        + {method} loadMetadata (metadata)
+    }
+
+    interface "App\\Database\\RepositoryInterface" {
+        + {method} getEntityClassFQN ()
+        + {method} getTableName ()
+    }
+    
+    class "App\\Exceptions\\DefinitionException" { }
+
+    class "App\\Exceptions\\DeleteException" { }
+
+    class "App\\Exceptions\\EntitynotFoundException" { }
+
+    class "App\\Exceptions\\IncompatibleTraitException" { }
+
+    class "App\\Exceptions\\SaveException" { }
 
 @enduml
