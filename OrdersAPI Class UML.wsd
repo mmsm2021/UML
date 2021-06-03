@@ -1,241 +1,248 @@
 @startuml Class UML
+
+    set namespaceSeparator \\
+
+    "App\\Actions\\Create" --o "App\\DTO\\Validators\\OrderValidator"
+    "App\\Actions\\Create" --o "App\\DTO\\Validators\\QuoteValidator"
+    "App\\Actions\\Create" --o "App\\Documents\\Order"
+
+    class "App\\Actions\\Create" {
+        - authorizer
+        - container
+        - documentManager
+        - jwtHandler
+        - orderValidator
+        - orderItemFactory
+        - quoteValidator
+        - responseFactory
+        ==
+        + {method} __construct (documentManager, orderValidator,
+                                jsonResponseFactory, authorizer,
+                                containerInterface, orderItemFactory,
+                                jwtHandler, quoteValidator)
+        ==
+        + {method} __invoke (request)
+        + {method} createOrder (request)
+    }
+
+    "App\\Actions\\Delete" --o "App\\Documents\\Order"
+
+    class "App\\Actions\\Delete" {
+        - authorizer
+        - documentManager
+        - responseFactory
+        ==
+        + {method} __construct (authorizer, documentManager,
+                                responseFactory)
+        ==
+        + {method} __invoke (request, orderId)
+        + {method} isAdmin (request)
+        + {method} isEmployee (request)
+        + {method} isOrderOwner (token, order)
+    }
+
+    "App\\Actions\\Delivered" --o "App\\DTO\\Validators\\PatchValidator"
+    "App\\Actions\\Delivered" --o "App\\Documents\\Order"
+
+    class "App\\Actions\\Delivered" {
+        - authorizer
+        - documentManager
+        - patchValidator
+        - responseFactory
+        ==
+        + {method} __construct (authorizer, documentManager,
+                                patchValidator, responseFactory)
+        ==
+        + {method} __invoke (request, orderId)
+        - {method} updater (items, order, server)
+    }
+
+    "App\\Actions\\Read" --o "App\\Documents\\Order"
+
+    class "App\\Actions\\Read" {
+        - authorizer
+        - documentManager
+        - responseFactory
+        ==
+        + {method} __construct (documentManager,
+                                responseFactory, authorizer)
+        ==
+        + {method} __invoke (request, orderId)
+        - {method} isEmployee (request)
+        - {method} isOrderOwner (token, order)
+    }
+
+    "App\\Actions\\ReadLast" --o "App\\Documents\\Order"
+
+    class "App\\Actions\\ReadLast" {
+        - authorizer
+        - documentManager
+        - responseFactory
+        ==
+        + {method} __construct (authorizer, documentManager,
+                                responseFactory)
+        ==
+        + {method} __invoke (request, locationId, n)
+    }
+
+    "App\\Actions\\ReadLocation" --o "App\\Documents\\Order"
+
+    class "App\\Actions\\ReadLocation" {
+        - authorizer
+        - documentManager
+        - responseFactory
+        ==
+        + {method} __construct (authorizer, documentManager,
+                                responseFactory)
+        ==
+        + {method} __invoke (request, locationId)
+    }
+
+    "App\\Actions\\ReadUser" --o "App\\Documents\\Order"
+
+    class "App\\Actions\\ReadUser" {
+        - authorizer
+        - documentManager
+        - responseFactory
+        ==
+        + {method} __construct (authorizer, documentManager,
+                                responseFactory)
+        ==
+        + {method} __invoke (request, userId)
+        - {method} isEmployee (request)
+        - {method} isRequestingUser (token, user)
+    }
+
+    "App\\Actions\\Update" --o "App\\DTO\\Validators\\PatchValidator"
+    "App\\Actions\\Update" --o "App\\Factories\\OrderItemFactory"
+    "App\\Actions\\Update" --o "App\\Documents\\Order"
+
+    class "App\\Actions\\Update" {
+        - authorizer
+        - documentManager
+        - orderItemFactory
+        - patchValidator
+        - responseFactory
+        ==
+        + {method} __construct (authorizer, documentManager,
+                                patchValidator, responseFactory,
+                                orderItemFactory)
+        ==
+        + {method} __invoke (request, orderId)
+        # {method} calculateTotal (order)
+        # {method} isItemOnOrder (order, items)
+        # {method} updateItems (order, items)
+        + {method} updateOrder (order, data)
+    }
+
+    class "App\\Documents\\Order" {
+        - customer : String
+        - discount : Int
+        - items : Collection
+        - locationId : String
+        - location : String
+        - orderId :String
+        - orderStatus : Int
+        - orderDate : DateTime
+        - server : String
+        - total :String
+        ==
+        + {method} __construct ()
+        ==
+        + {method} getCustomer ()
+        + {method} getDiscount ()
+        + {method} getItem (itemUUID)
+        + {method} getItems ()
+        + {method} getItemsArray ()
+        + {method} getLocation ()
+        + {method} getLocatioinId ()
+        + {method} getOrderDate ()
+        + {method} getOrderId ()
+        + {method} getOrderStatus ()
+        + {method} getServer ()
+        + {method} getTotal ()
+        + {method} addItem (item)
+        + {method} setCustomer (customer)
+        + {method} setItem (item)
+        + {method} setLocation (location)
+        + {method} setDiscount (discount)
+        + {method} setOrderStatus (status)
+        + {method} setServer (server)
+        + {method} toArray ()
+        + {method} setTotal (total)
+        + {method} setLocationId (total)
+        --
+        + {method} loadMetaData (metadata)
+    }
+
+    "App\\Documents\\OrderItem" --* "App\\Documents\\Order"
+
+    class "App\\Documents\\OrderItem" {
+        - itemUUID : String
+        - nr : Int
+        - productId : String
+        - name : String
+        - cost : String
+        - delivered : DateTime 
+        - qty :Int 
+        - totalPrice : String 
+        ==
+        + {method} __construct ()
+        ==
+        + {method} getCustomer ()
+        + {method} getDiscount ()
+        + {method} getItem (itemUUID)
+        + {method} getItems ()
+        + {method} getItemsArray ()
+        + {method} getLocatioinId ()
+        + {method} getLocation ()
+        + {method} getServer ()
+        + {method} getTotal ()
+        + {method} addItem (item)
+        + {method} setCustomer (customer)
+        + {method} setDiscount (discount)
+        + {method} setItem (item)
+        + {method} setLocation (location)
+        + {method} setOrderStatus (status)
+        --
+        + {method} loadMetaData (metadata)
+    }
+
+    "App\\Constants\\OrderStatus" --* "App\\Documents\\Order"
+
+    class "App\\Constants\\OrderStatus" {
+        + ORDERED : 1
+        + DELIVERED : 2
+        + PENDING : 3
+        + PROCESSING : 4
+        + CANCELED : 0
+    }
     
-    namespace OrdersAPI #FAB5A6 {
 
-        namespace App\Actions #DDDDDD {
-            
-            class Create {
-                - authorizer
-                - container
-                - documentManager
-                - jwtHandler
-                - orderValidator
-                - orderItemFactory
-                - quoteValidator
-                - responseFactory
-                ==
-                + {method} __construct (documentManager, orderValidator,
-                                        jsonResponseFactory, authorizer,
-                                        containerInterface, orderItemFactory,
-                                        jwtHandler, quoteValidator)
-                ==
-                + {method} __invoke (request)
-                + {method} createOrder (request)
-            }
+    class "App\\DTO\\Validators\\OrderValidator" {
+        + {method} validate(order)
+    }
 
-            class Delete {
-                - authorizer
-                - documentManager
-                - responseFactory
-                ==
-                + {method} __construct (authorizer, documentManager,
-                                        responseFactory)
-                ==
-                + {method} __invoke (request, orderId)
-                + {method} isAdmin (request)
-                + {method} isEmployee (request)
-                + {method} isOrderOwner (token, order)
-            }
+    class "App\\DTO\\Validators\\PatchValidator" {
+        + {method} validate(order)
+    }
 
-            class Delivered {
-                - authorizer
-                - documentManager
-                - PatchValidator
-                - responseFactory
-                ==
-                + {method} __construct (authorizer, documentManager,
-                                        patchValidator, responseFactory)
-                ==
-                + {method} __invoke (request, orderId)
-                - {method} updater (items, order, server)
-            }
+    class "App\\DTO\\Validators\\QuoteValidator" {
+        + {method} check(data)
+    }
 
-            class Read {
-                - authorizer
-                - documentManager
-                - responseFactory
-                ==
-                + {method} __construct (documentManager,
-                                        responseFactory, authorizer)
-                ==
-                + {method} __invoke (request, orderId)
-                - {method} isEmployee (request)
-                - {method} isOrderOwner (token, order)
-            }
+    "App\\Factories\\OrderItemFactory" --o "App\\Documents\\OrderItem"
 
-            class ReadLast {
-                - authorizer
-                - documentManager
-                - responseFactory
-                ==
-                + {method} __construct (authorizer, documentManager,
-                                        responseFactory)
-                ==
-                + {method} __invoke (request, locationId, n)
-            }
-
-            class ReadLocation {
-                - authorizer
-                - documentManager
-                - responseFactory
-                ==
-                + {method} __construct (authorizer, documentManager,
-                                        responseFactory)
-                ==
-                + {method} __invoke (request, locationId)
-            }
-
-            class ReadUser {
-                - authorizer
-                - documentManager
-                - responseFactory
-                ==
-                + {method} __construct (authorizer, documentManager,
-                                        responseFactory)
-                ==
-                + {method} __invoke (request, userId)
-                - {method} isEmployee (request)
-                - {method} isRequestingUser (token, user)
-            }
-
-            class Update {
-                - authorizer
-                - documentManager
-                - orderItemFactory
-                - patchValidator
-                - responseFactory
-                ==
-                + {method} __construct (authorizer, documentManager,
-                                        patchValidator, responseFactory,
-                                        orderItemFactory)
-                ==
-                + {method} __invoke (request, orderId)
-                # {method} calculateTotal (order)
-                # {method} isItemOnOrder (order, items)
-                # {method} updateItems (order, items)
-                + {method} updateOrder (order, data)
-            }
-
-        }
-
-        namespace App\Documents #DDDDDD  {
-
-            class Order {
-                - customer : String
-                - discount : Int
-                - items : Collection
-                - locationId : String
-                - location : String
-                - orderId :String
-                - orderStatus : Int
-                - orderDate : DateTime
-                - server : String
-                - total :String
-                ==
-                + {method} __construct ()
-                ==
-                + {method} getCustomer ()
-                + {method} getDiscount ()
-                + {method} getItem (itemUUID)
-                + {method} getItems ()
-                + {method} getItemsArray ()
-                + {method} getLocation ()
-                + {method} getLocatioinId ()
-                + {method} getOrderDate ()
-                + {method} getOrderId ()
-                + {method} getOrderStatus ()
-                + {method} getServer ()
-                + {method} getTotal ()
-                + {method} addItem (item)
-                + {method} setCustomer (customer)
-                + {method} setItem (item)
-                + {method} setLocation (location)
-                + {method} setDiscount (discount)
-                + {method} setOrderStatus (status)
-                + {method} setServer (server)
-                + {method} toArray ()
-                + {method} setTotal (total)
-                + {method} setLocationId (total)
-                --
-                + {method} loadMetaData (metadata)
-            }
-
-            class OrderItem {
-                - itemUUID : String
-                - nr : Int
-                - productId : String
-                - name : String
-                - cost : String
-                - delivered : DateTime 
-                - qty :Int 
-                - totalPrice : String 
-                ==
-                + {method} __construct ()
-                ==
-                + {method} getCustomer ()
-                + {method} getDiscount ()
-                + {method} getItem (itemUUID)
-                + {method} getItems ()
-                + {method} getItemsArray ()
-                + {method} getLocatioinId ()
-                + {method} getLocation ()
-                + {method} getServer ()
-                + {method} getTotal ()
-                + {method} addItem (item)
-                + {method} setCustomer (customer)
-                + {method} setDiscount (discount)
-                + {method} setItem (item)
-                + {method} setLocation (location)
-                + {method} setOrderStatus (status)
-                --
-                + {method} loadMetaData (metadata)
-            }
-
-        }
-
-        namespace App\Constants #DDDDDD {
-
-            class OrderStatus {
-                + ORDERED : 1
-                + DELIVERED : 2
-                + PENDING : 3
-                + PROCESSING : 4
-                + CANCELED : 0
-            }
-
-        }
-
-        namespace App\DTO\Validators #DDDDDD {
-
-            class OrderValidator {
-                + {method} validate(order)
-            }
-
-            class PatchValidator {
-                + {method} validate(order)
-            }
-
-            class QuoteValidator {
-                + {method} check(data)
-            }
-        }
-
-        namespace App\Factories #DDDDDD {
-
-            class orderItemFactory {
-                - itemUUIDProperty
-                ==
-                + {method} __construct ()
-                ==
-                + {method} create (productId, number,
-                                    name, cost,
-                                    qty, totalPrice,
-                                    delivered, itemUuid)
-                + {method} createFromArray (productToken)
-            }
-
-        }
-
+    class "App\\Factories\\OrderItemFactory" {
+        - itemUUIDProperty
+        ==
+        + {method} __construct ()
+        ==
+        + {method} create (productId, number,
+                            name, cost,
+                            qty, totalPrice,
+                            delivered, itemUuid)
+        + {method} createFromArray (productToken)
     }
 
 @enduml
