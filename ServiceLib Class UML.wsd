@@ -1,74 +1,159 @@
 @startuml Class UML
     
-    namespace OrdersAPI #FAB5A6 {
+    set namespaceSeparator \\
 
-        namespace MMSM\Lib #DDDDDD {
+    interface "MMSM\\Lib\\ErrorHandlers\\ErrorHandlerInterface" {
+        + {method} __invoke(request, throwable,
+                            displayErrorDetails, logErrors,
+                            logErrorDetails)
+    }
 
-            class AuthorizationMiddleware {
-                - JWKValidator
-                - bearers
-                - JWTValidator
-                - keySet
-                --
-                + EXPECTED_ALG
-                + HEADER
-                ==
-                + {method} __construct (JWKValidator, JWTValidator)
-                ==
-                + {method} loadJWKs (path, local)
-                + {method} addAllowedBearer (bearer)
-                + {method} __invoke (request, handler)
-                # {method} getHeader (request)
-                + {method} process (request, handler)
-                # {method} isValidBearer (bearer)
-            }
+    "MMSM\\Lib\\ErrorHandlers\\JsonErrorHandler" --o "MMSM\\Lib\\Factories\\JsonResponseFactory"
 
-            class Authorizer {
-                -container
-                ==
-                + {method} __construct (container)
-                ==
-                + {method} authorizeToRole (request, roleKey)
-                + {method} getInternalRoles (roles)
-                # {method} readTokenFromRequest (request)
-                # {method} hasInternalRoles (token, roles)
-                + {method} getAppMetadata (request, emptyOnFailure)
-                + {method} isUserInLocation (request, locationId)
-                + {method} getUserMetadata (request, emptyOnFailure)
-                # {method} isValidRoleKeys (keys)
-                + {method} hasRole (request, roleKey, failOnNoToken)
-                # {method} readNamespacedClaim (token, name)
-                + {method} hasRoles (request, roleKeys, failOnNoToken)
-                + {method} authorizetoRoles (request, roleKeys)
-            }
+    class "MMSM\\Lib\\ErrorHandlers\\JsonErrorHandler" implements MMSM\\Lib\\ErrorHandlers\\ErrorHandlerInterface {
+        - logger
+        - jsonResponseFactory
+        ==
+        + {method} __construct(jsonResponseFactory)
+        ==
+        + {method} __invoke(request, throwable,
+                            displayErrorDetails, logErrors,
+                            logErrorDetails)
+        + {method} setLogger(logger)
+    }
 
-            class BodyParsingMiddleware {
-                - jsonResponseFactory
-                ==
-                + {method} __construct(jsonResponseFactory, bodyParsers)
-                ==
-                # {method} parseBody(request)
-            }
+    "MMSM\\Lib\\ErrorHandlers\\ValidationExceptionJsonHandler" --o "MMSM\\Lib\\Factories\\JsonResponseFactory"
 
-            class container {
-                + {method} get(name)
-            }
+    class "MMSM\\Lib\\ErrorHandlers\\ValidationExceptionJsonHandler" implements MMSM\\Lib\\ErrorHandlers\\ErrorHandlerInterface {
+        - logger
+        - jsonResponseFactory
+        ==
+        + {method} __construct(jsonResponseFactory)
+        ==
+        + {method} __invoke(request, throwable,
+                            displayErrorDetails, logErrors,
+                            logErrorDetails)
+        + {method} setLogger(logger)
+    }
 
-            class JwtHandler {
-                - container
-                - internalKeySet
-                --
-                + ALG
-                ==
-                + {method} __construct (internalKeyset, container)
-                ==
-                # {method} getNewestKeyId ()
-                + {method} create (data, exp)
-                + {method} decode (jwt)
-            }
+    class "MMSM\\Lib\\Exceptions\\DefinitionException" {
 
-        }
+    }
 
+    class "MMSM\\Lib\\Exceptions\\JwkException" {
+
+    }
+
+    class "MMSM\\Lib\\Exceptions\\JWKKeyFileException" {
+
+    }
+
+    class "MMSM\\Lib\\Factories\\JsonResponseFactory" {
+        - responseFactory
+        ==
+        + {method} __construct(responseFactory)
+        ==
+        + {method} create(code, data)
+    }
+
+    class "MMSM\\Lib\\Parsers\\JsonBodyParser" {
+        + {method} __invoke(body)
+    }
+
+    class "MMSM\\Lib\\Parsers\\XmlBodyParser" {
+        + {method} __invoke(body)
+    }
+
+    interface "MMSM\\Lib\\Validators\\ValidatorInterface" {
+        + {method} validate(data)
+        + {method} check(data)
+    }
+
+    class "MMSM\\Lib\\Validators\\JWKValidator" implements MMSM\\Lib\\Validators\\ValidatorInterface {
+        + {method} validate(data)
+        + {method} check(data)
+    }
+
+    class "MMSM\\Lib\\Validators\\JWTValidator" implements MMSM\\Lib\\Validators\\ValidatorInterface {
+        + {method} validate(data)
+        + {method} check(data)
+    }
+
+    "MMSM\\Lib\\AuthorizationMiddleware" --o "MMSM\\Lib\\Validators\\JWKValidator"
+    "MMSM\\Lib\\AuthorizationMiddleware" --o "MMSM\\Lib\\Validators\\JWTValidator"
+
+    class "MMSM\\Lib\\AuthorizationMiddleware" {
+        - JWKValidator
+        - bearers
+        - JWTValidator
+        - keySet
+        --
+        + EXPECTED_ALG
+        + HEADER
+        ==
+        + {method} __construct (JWKValidator, JWTValidator)
+        ==
+        + {method} loadJWKs (path, local)
+        + {method} addAllowedBearer (bearer)
+        + {method} __invoke (request, handler)
+        # {method} getHeader (request)
+        + {method} process (request, handler)
+        # {method} isValidBearer (bearer)
+    }
+
+    "MMSM\\Lib\\Authorizer" --o "MMSM\\Lib\\Container"
+
+    class "MMSM\\Lib\\Authorizer" {
+        -container
+        ==
+        + {method} __construct (container)
+        ==
+        + {method} authorizeToRole (request, roleKey)
+        + {method} getInternalRoles (roles)
+        # {method} readTokenFromRequest (request)
+        # {method} hasInternalRoles (token, roles)
+        + {method} getAppMetadata (request, emptyOnFailure)
+        + {method} isUserInLocation (request, locationId)
+        + {method} getUserMetadata (request, emptyOnFailure)
+        # {method} isValidRoleKeys (keys)
+        + {method} hasRole (request, roleKey, failOnNoToken)
+        # {method} readNamespacedClaim (token, name)
+        + {method} hasRoles (request, roleKeys, failOnNoToken)
+        + {method} authorizetoRoles (request, roleKeys)
+    }
+
+    "MMSM\\Lib\\BodyParsingMiddleware" --o "MMSM\\Lib\\Factories\\JsonResponseFactory"
+
+    class "MMSM\\Lib\\BodyParsingMiddleware" {
+        - jsonResponseFactory
+        ==
+        + {method} __construct(jsonResponseFactory, bodyParsers)
+        ==
+        # {method} parseBody(request)
+    }
+
+    class "MMSM\\Lib\\Container" {
+        + {method} get(name)
+    }
+
+    class "MMSM\\Lib\\InternalKeySet" {
+
+    }
+
+    "MMSM\\Lib\\JwtHandler" --o "MMSM\\Lib\\Container"
+    "MMSM\\Lib\\JwtHandler" --o "MMSM\\Lib\\InternalKeySet"
+
+    class "MMSM\\Lib\\JwtHandler" {
+        - container
+        - internalKeySet
+        --
+        + ALG
+        ==
+        + {method} __construct (internalKeyset, container)
+        ==
+        # {method} getNewestKeyId ()
+        + {method} create (data, exp)
+        + {method} decode (jwt)
     }
 
 @enduml
