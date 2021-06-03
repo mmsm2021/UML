@@ -1,0 +1,219 @@
+@startuml Class UML
+
+    namespace ProductAPI #A6FADF {
+
+        namespace App\Actions\Product\Quote #DDDDDD {
+
+            class GetAction {
+                - jsonResponseFactory
+                - productRepository
+                - authorizer
+                - jwtHandler
+                ==
+                + {method} __construct (jsonResponseFactory, productRepository,
+                                        authorizer, jwtHandler)
+                ==
+                + {method} __invoke (request, id)
+            }
+
+        }
+
+        namespace App\Actions\Product #DDDDDD {
+
+            class DeleteAction {
+                - productRepository
+                - jsonResponseFactory
+                - authorizer
+                ==
+                + {method} __construct (productRepository, jsonResponseFactory,
+                                        authorizer)
+                ==
+                + {method} __invoke (request, id)
+            }
+
+            class GetAction {
+                - productRepository
+                - jsonResponseFactory
+                - authorizer
+                ==
+                + {method} __construct (productRepository, jsonResponseFactory,
+                                        authorizer)
+                ==
+                + {method} __invoke (request, id)
+            }
+
+            class ListAction {
+                - productRepository
+                - jsonResponseFactory
+                - authorizer
+                --
+                FIELDS
+                TIMESTAMPS
+                ==
+                + {method} __construct (productRepository, jsonResponseFactory,
+                                        authorizer)
+                ==
+                + {method} __invoke (request)
+                + {method} getCriteriaFromQuery (request)
+                + {method} processFilters (filters, request,
+                                            criteria, and)
+                + {method} parseFilter (criteria, field,
+                                        filters, and)
+                + {method} handleAnd (riteria, comparison,
+                                        and)
+            }
+
+            class PatchAction {
+                - productRepository
+                - jsonResponseFactory
+                - authorizer
+                ==
+                + {method} __construct (productRepository, jsonResponseFactory,
+                                        authorizer)
+                ==
+                + {method} __invoke (request, id)
+            }
+
+            class PostAction {
+                - productRepository
+                - jsonResponseFactory
+                - productValidator
+                - authorizer
+                ==
+                + {method} __construct (productRepository, jsonResponseFactory,
+                                        productValidator, authorizer)
+                ==
+                + {method} __invoke (request)
+            }
+
+        }
+
+        namespace App\Data\Validator #DDDDDD {
+
+            class ProductValidator {
+                - postValidator
+                - patchValidator
+                --
+                # PROPERTY_NAME
+                # PROPERTY_LOCATION_ID
+                # PROPERTY_PRICE
+                # PROPERTY_DISCOUNT_PRICE
+                # PROPERTY_DISCOUNT_FROM
+                # PROPERTY_DISCOUNT_TO
+                # PROPERTY_STATUS
+                # PROPERTY_ATTRIBUTES
+                # PROPERTY_DESCRIPTION
+                # PROPERTY_UNIQUE_IDENTIFIER
+                
+                + {method} getPostValidator ()
+                + {method} getPatchValidator ()
+                + {method} postCheck (data)
+                + {method} patchCheck (data)
+            }
+
+        }
+
+        namespace App\Database\Entities #DDDDDD {
+
+            class Product {
+                - id : String
+                - id : String
+                - locationId : String
+                - price : String
+                - discountPrice : string
+                - discountFrom : DateTimeImmutable
+                - discountTo : DateTimeImmutable
+                - status : Int
+                - attributes : Array
+                - description : String
+                - uniqueIdentifier : String
+                - createdAt : DateTimeImmutable
+                - updatedAt : DateTimeImmutable
+                - deletedAt : DateTimeImmutable
+                --
+                + PROPERTY_DESCRIPTION
+                + PROPERTY_UNIQUE_IDENTIFIER
+                ==
+                + {method} __construct ()
+                ==
+                + {method} getId ()
+                + {method} getName ()
+                + {method} setName (name)
+                + {method} getLocationId ()
+                + {method} setLocationId (locationId)
+                + {method} getPrice ()
+                + {method} setPrice (price)
+                + {method} getDiscountPrice ()
+                + {method} setDiscountPrice (discountPrice)
+                + {method} getDiscountFrom ()
+                + {method} setDiscountFrom (discountFrom)
+                + {method} getDiscountTo ()
+                + {method} setDiscountTo (discountTo)
+                + {method} getStatus ()
+                + {method} setStatus (status)
+                + {method} getAttributes ()
+                + {method} setAttributes (attributes)
+                + {method} getDescription ()
+                + {method} setDescription (description)
+                + {method} getUniqueIdentifier ()
+                + {method} setUniqueIdentifier (uniqueIdentifier)
+                + {method} getCreatedAt ()
+                + {method} getUpdatedAt ()
+                + {method} getDeletedAt ()
+                + {method} toArray ()
+                + {method} loadMetadata ()
+            }
+
+        }
+
+        namespace App\Database\Repositories #DDDDDD {
+
+            class ProductRepository {
+                - entityManager
+                - updatedProperty
+                - deletedProperty
+                --
+                # TABLE_NAME
+                ==
+                + {method} __construct (entityManager)
+                ==
+                + {method} getEntityManager ()
+                + {method} idExists (id)
+                + {method} getById (id, includeDeleted)
+                + {method} getList (criteria, asArrays)
+                + {method} save (product)
+                + {method} delete (product, hard)
+                # {method} markEntityAsUpdated (product)
+                # {method} markEntityAsDeleted (product)
+                # {method} persist (product)
+            }
+
+        }
+
+        namespace App\Database #DDDDDD {
+
+            interface EntityInterface {
+                + {static} loadMetadata (metadata)
+            }
+
+        }
+
+        namespace App\Exceptions #DDDDDD {
+
+            class DefinitionException {
+            }
+
+            class DeleteException {
+            }
+
+            class EntityNotFoundException {
+            }
+
+            class SaveException {
+            }
+
+        }
+
+    }
+
+@enduml

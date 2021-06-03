@@ -1,0 +1,74 @@
+@startuml Class UML
+    
+    namespace OrdersAPI #FAB5A6 {
+
+        namespace MMSM\Lib #DDDDDD {
+
+            class AuthorizationMiddleware {
+                - JWKValidator
+                - bearers
+                - JWTValidator
+                - keySet
+                --
+                + EXPECTED_ALG
+                + HEADER
+                ==
+                + {method} __construct (JWKValidator, JWTValidator)
+                ==
+                + {method} loadJWKs (path, local)
+                + {method} addAllowedBearer (bearer)
+                + {method} __invoke (request, handler)
+                # {method} getHeader (request)
+                + {method} process (request, handler)
+                # {method} isValidBearer (bearer)
+            }
+
+            class Authorizer {
+                -container
+                ==
+                + {method} __construct (container)
+                ==
+                + {method} authorizeToRole (request, roleKey)
+                + {method} getInternalRoles (roles)
+                # {method} readTokenFromRequest (request)
+                # {method} hasInternalRoles (token, roles)
+                + {method} getAppMetadata (request, emptyOnFailure)
+                + {method} isUserInLocation (request, locationId)
+                + {method} getUserMetadata (request, emptyOnFailure)
+                # {method} isValidRoleKeys (keys)
+                + {method} hasRole (request, roleKey, failOnNoToken)
+                # {method} readNamespacedClaim (token, name)
+                + {method} hasRoles (request, roleKeys, failOnNoToken)
+                + {method} authorizetoRoles (request, roleKeys)
+            }
+
+            class BodyParsingMiddleware {
+                - jsonResponseFactory
+                ==
+                + {method} __construct(jsonResponseFactory, bodyParsers)
+                ==
+                # {method} parseBody(request)
+            }
+
+            class container {
+                + {method} get(name)
+            }
+
+            class JwtHandler {
+                - container
+                - internalKeySet
+                --
+                + ALG
+                ==
+                + {method} __construct (internalKeyset, container)
+                ==
+                # {method} getNewestKeyId ()
+                + {method} create (data, exp)
+                + {method} decode (jwt)
+            }
+
+        }
+
+    }
+
+@enduml

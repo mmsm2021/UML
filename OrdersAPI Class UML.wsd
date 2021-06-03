@@ -1,0 +1,241 @@
+@startuml Class UML
+    
+    namespace OrdersAPI #FAB5A6 {
+
+        namespace App\Actions #DDDDDD {
+            
+            class Create {
+                - authorizer
+                - container
+                - documentManager
+                - jwtHandler
+                - orderValidator
+                - orderItemFactory
+                - quoteValidator
+                - responseFactory
+                ==
+                + {method} __construct (documentManager, orderValidator,
+                                        jsonResponseFactory, authorizer,
+                                        containerInterface, orderItemFactory,
+                                        jwtHandler, quoteValidator)
+                ==
+                + {method} __invoke (request)
+                + {method} createOrder (request)
+            }
+
+            class Delete {
+                - authorizer
+                - documentManager
+                - responseFactory
+                ==
+                + {method} __construct (authorizer, documentManager,
+                                        responseFactory)
+                ==
+                + {method} __invoke (request, orderId)
+                + {method} isAdmin (request)
+                + {method} isEmployee (request)
+                + {method} isOrderOwner (token, order)
+            }
+
+            class Delivered {
+                - authorizer
+                - documentManager
+                - PatchValidator
+                - responseFactory
+                ==
+                + {method} __construct (authorizer, documentManager,
+                                        patchValidator, responseFactory)
+                ==
+                + {method} __invoke (request, orderId)
+                - {method} updater (items, order, server)
+            }
+
+            class Read {
+                - authorizer
+                - documentManager
+                - responseFactory
+                ==
+                + {method} __construct (documentManager,
+                                        responseFactory, authorizer)
+                ==
+                + {method} __invoke (request, orderId)
+                - {method} isEmployee (request)
+                - {method} isOrderOwner (token, order)
+            }
+
+            class ReadLast {
+                - authorizer
+                - documentManager
+                - responseFactory
+                ==
+                + {method} __construct (authorizer, documentManager,
+                                        responseFactory)
+                ==
+                + {method} __invoke (request, locationId, n)
+            }
+
+            class ReadLocation {
+                - authorizer
+                - documentManager
+                - responseFactory
+                ==
+                + {method} __construct (authorizer, documentManager,
+                                        responseFactory)
+                ==
+                + {method} __invoke (request, locationId)
+            }
+
+            class ReadUser {
+                - authorizer
+                - documentManager
+                - responseFactory
+                ==
+                + {method} __construct (authorizer, documentManager,
+                                        responseFactory)
+                ==
+                + {method} __invoke (request, userId)
+                - {method} isEmployee (request)
+                - {method} isRequestingUser (token, user)
+            }
+
+            class Update {
+                - authorizer
+                - documentManager
+                - orderItemFactory
+                - patchValidator
+                - responseFactory
+                ==
+                + {method} __construct (authorizer, documentManager,
+                                        patchValidator, responseFactory,
+                                        orderItemFactory)
+                ==
+                + {method} __invoke (request, orderId)
+                # {method} calculateTotal (order)
+                # {method} isItemOnOrder (order, items)
+                # {method} updateItems (order, items)
+                + {method} updateOrder (order, data)
+            }
+
+        }
+
+        namespace App\Documents #DDDDDD  {
+
+            class Order {
+                - customer : String
+                - discount : Int
+                - items : Collection
+                - locationId : String
+                - location : String
+                - orderId :String
+                - orderStatus : Int
+                - orderDate : DateTime
+                - server : String
+                - total :String
+                ==
+                + {method} __construct ()
+                ==
+                + {method} getCustomer ()
+                + {method} getDiscount ()
+                + {method} getItem (itemUUID)
+                + {method} getItems ()
+                + {method} getItemsArray ()
+                + {method} getLocation ()
+                + {method} getLocatioinId ()
+                + {method} getOrderDate ()
+                + {method} getOrderId ()
+                + {method} getOrderStatus ()
+                + {method} getServer ()
+                + {method} getTotal ()
+                + {method} addItem (item)
+                + {method} setCustomer (customer)
+                + {method} setItem (item)
+                + {method} setLocation (location)
+                + {method} setDiscount (discount)
+                + {method} setOrderStatus (status)
+                + {method} setServer (server)
+                + {method} toArray ()
+                + {method} setTotal (total)
+                + {method} setLocationId (total)
+                --
+                + {method} loadMetaData (metadata)
+            }
+
+            class OrderItem {
+                - itemUUID : String
+                - nr : Int
+                - productId : String
+                - name : String
+                - cost : String
+                - delivered : DateTime 
+                - qty :Int 
+                - totalPrice : String 
+                ==
+                + {method} __construct ()
+                ==
+                + {method} getCustomer ()
+                + {method} getDiscount ()
+                + {method} getItem (itemUUID)
+                + {method} getItems ()
+                + {method} getItemsArray ()
+                + {method} getLocatioinId ()
+                + {method} getLocation ()
+                + {method} getServer ()
+                + {method} getTotal ()
+                + {method} addItem (item)
+                + {method} setCustomer (customer)
+                + {method} setDiscount (discount)
+                + {method} setItem (item)
+                + {method} setLocation (location)
+                + {method} setOrderStatus (status)
+                --
+                + {method} loadMetaData (metadata)
+            }
+
+        }
+
+        namespace App\Constants #DDDDDD {
+
+            class OrderStatus {
+                + ORDERED : 1
+                + DELIVERED : 2
+                + PENDING : 3
+                + PROCESSING : 4
+                + CANCELED : 0
+            }
+
+        }
+
+        namespace App\DTO\Validators #DDDDDD {
+
+            class OrderValidator {
+                + {method} validate(order)
+            }
+
+            class PatchValidator {
+                + {method} validate(order)
+            }
+
+            class QuoteValidator {
+                + {method} check(data)
+            }
+        }
+
+        namespace App\Factories #DDDDDD {
+
+            class orderItemFactory {
+                - itemUUIDProperty
+                ==
+                + {method} __construct ()
+                ==
+                + {method} create (productId, number,
+                                    name, cost,
+                                    qty, totalPrice,
+                                    delivered, itemUuid)
+                + {method} createFromArray (productToken)
+            }
+
+        }
+
+    }
+
+@enduml
